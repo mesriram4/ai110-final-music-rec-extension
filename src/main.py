@@ -77,4 +77,13 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    response = input("Currently running music recommender. Would you like to switch to AI Mode?: ")
+
+    if response.lower() in ["yes", "y"]:
+        print("Switching to AI Mode...")
+        import Music_RAG as rag
+        prompt = input("Enter Prompt Here: ")
+        rag.main(prompt)
+    else: 
+        print("Remaining in original mode...")
+        main()
