@@ -5,6 +5,9 @@ with their preferences based on genre, mood, and energy. This progam adds specif
 factors should be prioritzed the most when determining top songs for specific users (eg. more weight 
 on genre as a siginificant contributer to preferences). 
 
+LINK TO DEMO: https://www.loom.com/share/e13643e5bfaf41d9a1f12a69d138cc97
+
+
 2) Title of the Project: Retrieval-Augmented Generation of Top Songs Based on User Prompts
 + Summary: While similar to purpose of the original Music Recommender, the implementation of AI 
 into this project aims to diversify preferences for users. Instead prioritizing one specific 
