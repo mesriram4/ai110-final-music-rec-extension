@@ -5,7 +5,10 @@ with their preferences based on genre, mood, and energy. This progam adds specif
 factors should be prioritzed the most when determining top songs for specific users (eg. more weight 
 on genre as a siginificant contributer to preferences). 
 
+<<<<<<< HEAD
 LINK TO DEMO: https://www.loom.com/share/e13643e5bfaf41d9a1f12a69d138cc97
+=======
+>>>>>>> 5471c10f094da8c2e5ab50767c26dddbf70b06bb
 
 
 2) Title of the Project: Retrieval-Augmented Generation of Top Songs Based on User Prompts
