@@ -30,8 +30,12 @@ def make_mock_ef():
 
 
 def make_mock_generate_response():
+    message = MagicMock()
+    message.content = "Top 5 recommendations: ..."
+    choice = MagicMock()
+    choice.message = message
     response = MagicMock()
-    response.text = "Top 5 recommendations: ..."
+    response.choices = [choice]
     return response
 
 
@@ -162,8 +166,8 @@ def test_format_retrieved_handles_multiple_songs():
 
 def test_generate_recs_returns_a_string():
     formatted_songs = ["Title: Midnight Coding | Genre: lofi | Mood: chill"]
-    with patch("Music_RAG.genai.Client") as MockClient:
-        MockClient.return_value.models.generate_content.return_value = make_mock_generate_response()
+    with patch("Music_RAG.Groq") as MockGroq:
+        MockGroq.return_value.chat.completions.create.return_value = make_mock_generate_response()
         result = rag.generate_recs("Give me chill songs", formatted_songs)
     assert isinstance(result, str)
     assert len(result) > 0
@@ -171,15 +175,16 @@ def test_generate_recs_returns_a_string():
 
 def test_generate_recs_passes_prompt_and_context_to_llm():
     formatted_songs = ["Title: Library Rain | Genre: lofi | Mood: chill"]
-    with patch("Music_RAG.genai.Client") as MockClient:
-        mock_client = MockClient.return_value
-        mock_client.models.generate_content.return_value = make_mock_generate_response()
+    with patch("Music_RAG.Groq") as MockGroq:
+        mock_client = MockGroq.return_value
+        mock_client.chat.completions.create.return_value = make_mock_generate_response()
         rag.generate_recs("energetic songs", formatted_songs)
 
-    call_kwargs = mock_client.models.generate_content.call_args
-    contents    = call_kwargs.kwargs["contents"]
-    assert "energetic songs" in contents
-    assert "Library Rain"    in contents
+    call_kwargs = mock_client.chat.completions.create.call_args
+    messages    = call_kwargs.kwargs["messages"]
+    user_content = messages[-1]["content"]
+    assert "energetic songs" in user_content
+    assert "Library Rain"    in user_content
 
 
 # ──────────────────────────────────────────────
@@ -188,13 +193,17 @@ def test_generate_recs_passes_prompt_and_context_to_llm():
 
 def test_main_pipeline_prints_output(capsys):
     in_memory = chromadb.EphemeralClient()
+    try:
+        in_memory.delete_collection("songs")
+    except Exception:
+        pass
     with patch("Music_RAG.load_songs",                return_value=MOCK_SONGS), \
          patch("Music_RAG.chromadb.PersistentClient", return_value=in_memory), \
          patch("Music_RAG.DefaultEmbeddingFunction") as MockEF, \
-         patch("Music_RAG.genai.Client") as MockClient:
+         patch("Music_RAG.Groq") as MockGroq:
 
         MockEF.return_value = make_mock_ef()
-        MockClient.return_value.models.generate_content.return_value = make_mock_generate_response()
+        MockGroq.return_value.chat.completions.create.return_value = make_mock_generate_response()
 
         rag.main("Give me 5 chill lofi songs")
 
@@ -204,13 +213,17 @@ def test_main_pipeline_prints_output(capsys):
 
 def test_main_pipeline_stores_all_songs(capsys):
     in_memory = chromadb.EphemeralClient()
+    try:
+        in_memory.delete_collection("songs")
+    except Exception:
+        pass
     with patch("Music_RAG.load_songs",                return_value=MOCK_SONGS), \
          patch("Music_RAG.chromadb.PersistentClient", return_value=in_memory), \
          patch("Music_RAG.DefaultEmbeddingFunction") as MockEF, \
-         patch("Music_RAG.genai.Client") as MockClient:
+         patch("Music_RAG.Groq") as MockGroq:
 
         MockEF.return_value = make_mock_ef()
-        MockClient.return_value.models.generate_content.return_value = make_mock_generate_response()
+        MockGroq.return_value.chat.completions.create.return_value = make_mock_generate_response()
 
         rag.main("Give me 5 chill lofi songs")
 
